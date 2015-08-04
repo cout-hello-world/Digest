@@ -19,7 +19,8 @@ public class Digest {
 			try {
 				File input = new File(args[i]);
 				byte[] digest = computeDigest(input, algorithm);
-				printDigest(digest);
+				printDigest(digest, args[i]);
+				System.out.println(" " + input);
 			} catch (IOException ex) {
 				System.err.println("Warning: Error reading file: " + args[i]);
 			} catch (NoSuchAlgorithmException ex) {
@@ -41,11 +42,10 @@ public class Digest {
 		}
 	}
 
-	private static void printDigest(byte[] digest) {
+	private static void printDigest(byte[] digest, String fileName) {
 		for (int i = 0; i < digest.length; i++) {
-			System.out.printf("%x", digest[i]);
+			System.out.printf("%02x", digest[i]);
 		}
-		System.out.println();
 	}
 
 	private static void printUsageAndExit() {
