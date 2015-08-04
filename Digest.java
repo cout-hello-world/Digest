@@ -1,19 +1,53 @@
+import java.io.File;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 public class Digest {
 	private static String[] algorithms = {"MD5", "SHA-1", "SHA-256"};
 	public static void main(String[] args) {
 		if (args.length < 2 || args[0].equals("--help")) {
 			printUsageAndExit();
-		}
-		String algorithm;
-		try {
-			algorithm = checkAlgorithm(args[0]);
-		} catch (IllegalArgumentException ex) {
-			System.err.println(ex.getMessage());
-			printUsageAndExit();
 			return;
+		}
+		String algorithm = args[0];
+		// Main loop.
+		for (int i = 1; i < args.length; i++) {
+			try {
+				File input = new File(args[i]);
+				byte[] digest = computeDigest(input, algorithm);
+				printDigest(digest);
+			} catch (IOException ex) {
+				System.err.println("Warning: Error reading file: " + args[i]);
+			} catch (NoSuchAlgorithmException ex) {
+				System.err.println("Unknown algorithm: " + algorithm);
+				printUsageAndExit();
+				return;
+			}
 		}
 	}
 	
+	private static byte[] computeDigest(File input, String algorithm)
+	        throws IOException, NoSuchAlgorithmException {
+		try (DigestInputStream stream = new DigestInputStream(
+		        new BufferedInputStream(new FileInputStream(input)),
+		        MessageDigest.getInstance(algorithm))) {
+			while (stream.read() != -1);
+			MessageDigest digest = stream.getMessageDigest();
+			return digest.digest();
+		}
+	}
+	
+	private static void printDigest(byte[] digest) {
+		for (int i = 0; i < digest.length; i++) {
+			System.out.printf("%x", digest[i]);
+		}
+		System.out.println();
+	}
+
 	private static String checkAlgorithm(String algorithm) {
 		for (String elem : algorithms) {
 			if (algorithm.equals(elem)) {
@@ -22,7 +56,7 @@ public class Digest {
 		}
 		throw new IllegalArgumentException("Unrecognised algorithm: " + algorithm);
 	}
-	
+
 	private static void printUsageAndExit() {
 		System.err.println("Usage: java Digest <function_name> <file1> file2> ...\n" +
 		                   "    <function_name> options include: ");
