@@ -29,7 +29,7 @@ public class Digest {
 			}
 		}
 	}
-	
+
 	private static byte[] computeDigest(File input, String algorithm)
 	        throws IOException, NoSuchAlgorithmException {
 		try (DigestInputStream stream = new DigestInputStream(
@@ -40,21 +40,12 @@ public class Digest {
 			return digest.digest();
 		}
 	}
-	
+
 	private static void printDigest(byte[] digest) {
 		for (int i = 0; i < digest.length; i++) {
 			System.out.printf("%x", digest[i]);
 		}
 		System.out.println();
-	}
-
-	private static String checkAlgorithm(String algorithm) {
-		for (String elem : algorithms) {
-			if (algorithm.equals(elem)) {
-				return algorithm;
-			}
-		}
-		throw new IllegalArgumentException("Unrecognised algorithm: " + algorithm);
 	}
 
 	private static void printUsageAndExit() {
